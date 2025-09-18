@@ -9,6 +9,7 @@ export default function Home() {
   const [currentStep, setCurrentStep] = useState(0) // 0 = initial welcome
   const [inputValue, setInputValue] = useState('')
   const [formData, setFormData] = useState({
+    petType: '',
     petName: '',
     ownerName: '',
     date: '',
@@ -28,9 +29,9 @@ export default function Home() {
       setTimeout(() => {
         setMessages(prev => [
           ...prev,
-          { from: 'bot', text: "First, what is your pet's name?" }
+          { from: 'bot', text: "First, what type of pet do you have? (Dog, Cat, etc.)" }
         ])
-        setCurrentStep(1) // Step 1 = pet name input
+        setCurrentStep(1) // Step 1 = pet type
         setIsTyping(false)
       }, 1000)
     }
@@ -44,21 +45,24 @@ export default function Home() {
 
     let nextStep = currentStep + 1
 
-    if (currentStep === 1) setFormData(prev => ({ ...prev, petName: inputValue }))
-    if (currentStep === 2) setFormData(prev => ({ ...prev, ownerName: inputValue }))
-    if (currentStep === 3) setFormData(prev => ({ ...prev, date: inputValue }))
-    if (currentStep === 4) setFormData(prev => ({ ...prev, time: inputValue }))
+    // Save data based on step
+    if (currentStep === 1) setFormData(prev => ({ ...prev, petType: inputValue }))
+    if (currentStep === 2) setFormData(prev => ({ ...prev, petName: inputValue }))
+    if (currentStep === 3) setFormData(prev => ({ ...prev, ownerName: inputValue }))
+    if (currentStep === 4) setFormData(prev => ({ ...prev, date: inputValue }))
+    if (currentStep === 5) setFormData(prev => ({ ...prev, time: inputValue }))
 
     setInputValue('')
     setIsTyping(true)
 
     setTimeout(() => {
       let botReply = ''
-      if (nextStep === 2) botReply = "Great! And what is the owner's name?"
-      else if (nextStep === 3) botReply = "Thanks! Please select the appointment date."
-      else if (nextStep === 4) botReply = "Perfect! Now choose a time slot."
-      else if (nextStep === 5) {
-        botReply = `All done! 🐾 Here’s your appointment summary:\nPet: ${formData.petName}\nOwner: ${formData.ownerName}\nDate: ${formData.date}\nTime: ${formData.time}\nDocDog 🐶 will contact you soon!`
+      if (nextStep === 2) botReply = "Great! What is your pet's name?"
+      else if (nextStep === 3) botReply = "Thanks! What is the owner's name?"
+      else if (nextStep === 4) botReply = "Please select the appointment date."
+      else if (nextStep === 5) botReply = "Perfect! Now choose a time slot."
+      else if (nextStep === 6) {
+        botReply = `All done! 🐾 Here’s your appointment summary:\n\nPet Type: ${formData.petType}\nPet Name: ${formData.petName}\nOwner: ${formData.ownerName}\nDate: ${formData.date}\nTime: ${formData.time}\n\nDocDog 🐶 will contact you soon!`
       }
 
       setMessages(prev => [...prev, { from: 'bot', text: botReply }])
@@ -76,19 +80,22 @@ export default function Home() {
         </div>
 
         {/* Chat Window */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-900">
+        <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-900 flex flex-col">
           {messages.map((msg, i) => (
             <motion.div
               key={i}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className={`p-3 rounded-2xl max-w-[75%] break-words ${
+              className={`p-3 rounded-2xl max-w-[75%] w-auto inline-block break-words ${
                 msg.from === 'bot'
                   ? 'bg-gray-700 text-yellow-200 self-start'
                   : 'bg-yellow-500 text-black self-end'
               }`}
             >
-              {msg.text}
+              {/* Preserve line breaks in summary */}
+              {msg.text.split('\n').map((line, idx) => (
+                <div key={idx}>{line}</div>
+              ))}
             </motion.div>
           ))}
           {isTyping && (
@@ -98,7 +105,7 @@ export default function Home() {
 
         {/* Input Area */}
         <div className="p-3 border-t border-gray-700 bg-gray-800">
-          {currentStep === 3 ? (
+          {currentStep === 4 ? (
             <form onSubmit={handleSubmit} className="flex gap-2">
               <input
                 type="date"
@@ -111,7 +118,7 @@ export default function Home() {
                 Send
               </button>
             </form>
-          ) : currentStep === 4 ? (
+          ) : currentStep === 5 ? (
             <form onSubmit={handleSubmit} className="flex gap-2">
               <select
                 value={inputValue}
@@ -128,7 +135,7 @@ export default function Home() {
                 Send
               </button>
             </form>
-          ) : currentStep >= 1 && currentStep <= 2 ? (
+          ) : currentStep >= 1 && currentStep <= 3 ? (
             <form onSubmit={handleSubmit} className="flex gap-2">
               <input
                 type="text"
