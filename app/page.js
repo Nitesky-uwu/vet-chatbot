@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
 
 export default function Home() {
@@ -18,10 +18,16 @@ export default function Home() {
     time: ''
   })
   const [isTyping, setIsTyping] = useState(false)
+  const chatEndRef = useRef(null)
 
   const timeOptions = ['09:00 AM','10:00 AM','11:00 AM','12:00 PM','01:00 PM','02:00 PM','03:00 PM','04:00 PM','05:00 PM']
   const severityOptions = ['Mild', 'Moderate', 'Severe']
   const reasonOptions = ['Vaccination', 'Check-up', 'Surgery', 'Other']
+
+  // Auto-scroll to latest message
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [messages, isTyping])
 
   // Ask first question after welcome
   useEffect(() => {
@@ -38,22 +44,31 @@ export default function Home() {
     }
   }, [currentStep])
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    if (!inputValue) return
+  // Handle option selection (auto-submit)
+  const handleOptionSelect = (option) => {
+    setMessages(prev => [...prev, { from: 'user', text: option }])
+    handleSubmit(null, option)
+  }
 
-    setMessages(prev => [...prev, { from: 'user', text: inputValue }])
+  // Handle submit for text inputs or selected option
+  const handleSubmit = (e, option = null) => {
+    if (e) e.preventDefault()
+    const value = option || inputValue
+    if (!value) return
+
+    if (!option) setMessages(prev => [...prev, { from: 'user', text: value }])
+
     let nextStep = currentStep + 1
 
-    // Save form data based on step
+    // Save form data
     switch (currentStep) {
-      case 1: setFormData(prev => ({ ...prev, petType: inputValue })); break
-      case 2: setFormData(prev => ({ ...prev, petName: inputValue })); break
-      case 3: setFormData(prev => ({ ...prev, ownerName: inputValue })); break
-      case 4: setFormData(prev => ({ ...prev, severity: inputValue })); break
-      case 5: setFormData(prev => ({ ...prev, reason: inputValue })); break
-      case 6: setFormData(prev => ({ ...prev, date: inputValue })); break
-      case 7: setFormData(prev => ({ ...prev, time: inputValue })); break
+      case 1: setFormData(prev => ({ ...prev, petType: value })); break
+      case 2: setFormData(prev => ({ ...prev, petName: value })); break
+      case 3: setFormData(prev => ({ ...prev, ownerName: value })); break
+      case 4: setFormData(prev => ({ ...prev, severity: value })); break
+      case 5: setFormData(prev => ({ ...prev, reason: value })); break
+      case 6: setFormData(prev => ({ ...prev, date: value })); break
+      case 7: setFormData(prev => ({ ...prev, time: value })); break
       default: break
     }
 
@@ -84,21 +99,18 @@ export default function Home() {
   const renderOptions = (options) => {
     return (
       <div className="flex flex-wrap gap-2">
-        {options.map(opt => (
-          <button
+        {options.map((opt, idx) => (
+          <motion.button
             key={opt}
-            onClick={() => setInputValue(opt)}
+            onClick={() => handleOptionSelect(opt)}
             className="bg-yellow-500 text-black px-4 py-2 rounded-full hover:bg-yellow-400 transition"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: idx * 0.1 }}
           >
             {opt}
-          </button>
+          </motion.button>
         ))}
-        <button
-          onClick={handleSubmit}
-          className="bg-yellow-600 text-black px-4 py-2 rounded-full hover:bg-yellow-500 transition"
-        >
-          Send
-        </button>
       </div>
     )
   }
@@ -132,6 +144,7 @@ export default function Home() {
           {isTyping && (
             <div className="text-sm text-gray-400 italic">DocDog is typing...</div>
           )}
+          <div ref={chatEndRef}></div>
         </div>
 
         {/* Input Area */}
