@@ -1,12 +1,14 @@
+import './globals.css'
+
 export const metadata = {
-  title: 'Vet Chatbot',
-  description: 'Veterinary chatbot with WhatsApp-like UI',
+  title: 'DocDog Chatbot',
+  description: 'Vet Appointment Chatbot',
 }
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body className="bg-gray-100">{children}</body>
     </html>
   )
 }
