@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { motion } from 'framer-motion'
 
 export default function Home() {
@@ -35,20 +35,34 @@ export default function Home() {
   return (
     <div className="flex items-center justify-center min-h-screen bg-green-50">
       <div className="w-full max-w-md bg-white shadow-xl rounded-2xl flex flex-col h-[600px]">
-        <div className="bg-green-600 text-white p-4 rounded-t-2xl">🐾 Vet Chatbot</div>
+        {/* Header */}
+        <div className="bg-green-600 text-white p-4 rounded-t-2xl">
+          🐾 Vet Chatbot
+        </div>
+
+        {/* Chat Window */}
         <div className="flex-1 overflow-y-auto p-4 space-y-3">
           {messages.map((msg, i) => (
             <motion.div
               key={i}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className={\`p-3 rounded-lg max-w-[80%] \${msg.from === 'bot' ? 'bg-gray-200 self-start' : 'bg-green-500 text-white self-end'}\`}
+              className={`p-3 rounded-lg max-w-[80%] ${
+                msg.from === 'bot'
+                  ? 'bg-gray-200 self-start'
+                  : 'bg-green-500 text-white self-end'
+              }`}
             >
               {msg.text}
             </motion.div>
           ))}
-          {isTyping && <div className="text-sm text-gray-500">Bot is typing...</div>}
+
+          {isTyping && (
+            <div className="text-sm text-gray-500">Bot is typing...</div>
+          )}
         </div>
+
+        {/* Options */}
         <div className="p-3 border-t flex space-x-2">
           {options.map((opt, i) => (
             <button
@@ -63,5 +77,4 @@ export default function Home() {
       </div>
     </div>
   )
-    }
-                
+}
