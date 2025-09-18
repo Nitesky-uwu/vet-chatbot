@@ -4,9 +4,9 @@ import { motion } from 'framer-motion'
 
 export default function Home() {
   const [messages, setMessages] = useState([
-    { from: 'bot', text: 'Hello! 🐾 I am your Vet Assistant. Let’s book an appointment step by step.' }
+    { from: 'bot', text: 'Hello! 🐾 I am DocDog 🐶. Let’s book your pet appointment step by step!' }
   ])
-  const [currentStep, setCurrentStep] = useState(0) // 0: pet name, 1: owner name, 2: date, 3: time, 4: confirm
+  const [currentStep, setCurrentStep] = useState(0)
   const [inputValue, setInputValue] = useState('')
   const [formData, setFormData] = useState({
     petName: '',
@@ -26,10 +26,8 @@ export default function Home() {
     e.preventDefault()
     if (!inputValue) return
 
-    // Add user message
     setMessages(prev => [...prev, { from: 'user', text: inputValue }])
 
-    // Save data based on step
     let nextStep = currentStep + 1
     if (currentStep === 0) setFormData(prev => ({ ...prev, petName: inputValue }))
     if (currentStep === 1) setFormData(prev => ({ ...prev, ownerName: inputValue }))
@@ -41,11 +39,11 @@ export default function Home() {
 
     setTimeout(() => {
       let botReply = ''
-      if (nextStep === 1) botReply = `Great! And what is the owner's name?`
-      else if (nextStep === 2) botReply = `Got it. Please select the appointment date.`
-      else if (nextStep === 3) botReply = `Perfect. Now choose a time slot.`
+      if (nextStep === 1) botReply = `Awesome! And what is the owner's name?`
+      else if (nextStep === 2) botReply = `Thanks! Please select the appointment date.`
+      else if (nextStep === 3) botReply = `Great! Now choose a time slot.`
       else if (nextStep === 4) {
-        botReply = `All set! 🐾 Here’s the summary:\nPet: ${formData.petName}\nOwner: ${formData.ownerName}\nDate: ${formData.date}\nTime: ${formData.time}\nWe will contact you shortly.`
+        botReply = `All done! 🐾 Here’s your appointment summary:\nPet: ${formData.petName}\nOwner: ${formData.ownerName}\nDate: ${formData.date}\nTime: ${formData.time}\nDocDog 🐶 will contact you soon!`
       }
 
       setMessages(prev => [...prev, { from: 'bot', text: botReply }])
@@ -55,36 +53,37 @@ export default function Home() {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="w-full max-w-md bg-white shadow-xl rounded-2xl flex flex-col h-[700px]">
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-green-100 to-blue-100">
+      <div className="w-full max-w-md bg-white shadow-2xl rounded-2xl flex flex-col h-[700px]">
         {/* Header */}
-        <div className="bg-gray-800 text-white p-4 rounded-t-2xl font-semibold text-lg">
-          Vet ChatGPT
+        <div className="bg-pink-500 text-white p-4 rounded-t-2xl font-bold text-lg flex items-center gap-2">
+          🐶 DocDog
         </div>
 
         {/* Chat Window */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-3">
+        <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-gradient-to-t from-green-50 to-blue-50">
           {messages.map((msg, i) => (
             <motion.div
               key={i}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className={`p-3 rounded-lg max-w-[80%] break-words ${
+              className={`p-3 rounded-2xl max-w-[75%] break-words ${
                 msg.from === 'bot'
-                  ? 'bg-gray-200 self-start'
-                  : 'bg-gray-800 text-white self-end'
+                  ? 'bg-gradient-to-r from-green-200 to-green-300 self-start'
+                  : 'bg-gradient-to-r from-purple-400 to-pink-400 text-white self-end'
               }`}
             >
               {msg.text}
             </motion.div>
           ))}
-          {isTyping && <div className="text-sm text-gray-500">Bot is typing...</div>}
+          {isTyping && (
+            <div className="text-sm text-gray-600 italic">DocDog is typing...</div>
+          )}
         </div>
 
         {/* Input Area */}
         <div className="p-3 border-t bg-white">
           {currentStep === 2 ? (
-            // Calendar input for date
             <form onSubmit={handleSubmit} className="flex gap-2">
               <input
                 type="date"
@@ -93,12 +92,11 @@ export default function Home() {
                 className="flex-1 border rounded-full px-4 py-2 focus:outline-none"
                 required
               />
-              <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded-full">
+              <button type="submit" className="bg-pink-500 text-white px-4 py-2 rounded-full">
                 Send
               </button>
             </form>
           ) : currentStep === 3 ? (
-            // Dropdown for time
             <form onSubmit={handleSubmit} className="flex gap-2">
               <select
                 value={inputValue}
@@ -111,12 +109,11 @@ export default function Home() {
                   <option key={t} value={t}>{t}</option>
                 ))}
               </select>
-              <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded-full">
+              <button type="submit" className="bg-pink-500 text-white px-4 py-2 rounded-full">
                 Send
               </button>
             </form>
           ) : currentStep < 2 ? (
-            // Text input for pet/owner name
             <form onSubmit={handleSubmit} className="flex gap-2">
               <input
                 type="text"
@@ -126,7 +123,7 @@ export default function Home() {
                 className="flex-1 border rounded-full px-4 py-2 focus:outline-none"
                 required
               />
-              <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded-full">
+              <button type="submit" className="bg-pink-500 text-white px-4 py-2 rounded-full">
                 Send
               </button>
             </form>
@@ -135,4 +132,4 @@ export default function Home() {
       </div>
     </div>
   )
-}
+                }
