@@ -4,7 +4,7 @@ import { motion } from 'framer-motion'
 
 export default function Home() {
   const [messages, setMessages] = useState([
-    { from: 'bot', text: 'Hello! 🐾 I am DocDog 🐶. Let’s book your pet appointment step by step!' }
+    { from: 'bot', text: 'Hello! 🐶 I am DocDog. Let’s book your pet appointment step by step!' }
   ])
   const [currentStep, setCurrentStep] = useState(0)
   const [inputValue, setInputValue] = useState('')
@@ -53,10 +53,10 @@ export default function Home() {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-green-100 to-blue-100">
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-green-100 to-blue-100 p-4">
       <div className="w-full max-w-md bg-white shadow-2xl rounded-2xl flex flex-col h-[700px]">
         {/* Header */}
-        <div className="bg-pink-500 text-white p-4 rounded-t-2xl font-bold text-lg flex items-center gap-2">
+        <div className="bg-yellow-400 text-white p-4 rounded-t-2xl font-bold text-lg flex items-center gap-2">
           🐶 DocDog
         </div>
 
@@ -92,7 +92,7 @@ export default function Home() {
                 className="flex-1 border rounded-full px-4 py-2 focus:outline-none"
                 required
               />
-              <button type="submit" className="bg-pink-500 text-white px-4 py-2 rounded-full">
+              <button type="submit" className="bg-yellow-400 text-white px-4 py-2 rounded-full">
                 Send
               </button>
             </form>
@@ -109,7 +109,7 @@ export default function Home() {
                   <option key={t} value={t}>{t}</option>
                 ))}
               </select>
-              <button type="submit" className="bg-pink-500 text-white px-4 py-2 rounded-full">
+              <button type="submit" className="bg-yellow-400 text-white px-4 py-2 rounded-full">
                 Send
               </button>
             </form>
@@ -123,7 +123,7 @@ export default function Home() {
                 className="flex-1 border rounded-full px-4 py-2 focus:outline-none"
                 required
               />
-              <button type="submit" className="bg-pink-500 text-white px-4 py-2 rounded-full">
+              <button type="submit" className="bg-yellow-400 text-white px-4 py-2 rounded-full">
                 Send
               </button>
             </form>
@@ -132,4 +132,4 @@ export default function Home() {
       </div>
     </div>
   )
-                }
+}
