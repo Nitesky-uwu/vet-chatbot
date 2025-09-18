@@ -1,0 +1,8 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Optional: smooth scroll for chat */
+html, body {
+  scroll-behavior: smooth;
+}
