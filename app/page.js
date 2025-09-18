@@ -1,12 +1,12 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 
 export default function Home() {
   const [messages, setMessages] = useState([
-    { from: 'bot', text: 'Hello! 🐶 I am DocDog. Let’s book your pet appointment step by step!' }
+    { from: 'bot', text: 'Hello! 🐶 I am DocDog. I will help you book a vet appointment.' }
   ])
-  const [currentStep, setCurrentStep] = useState(0)
+  const [currentStep, setCurrentStep] = useState(0) // 0 = initial welcome
   const [inputValue, setInputValue] = useState('')
   const [formData, setFormData] = useState({
     petName: '',
@@ -17,32 +17,49 @@ export default function Home() {
   const [isTyping, setIsTyping] = useState(false)
 
   const timeOptions = [
-    '09:00 AM', '10:00 AM', '11:00 AM', '12:00 PM',
-    '01:00 PM', '02:00 PM', '03:00 PM', '04:00 PM',
-    '05:00 PM'
+    '09:00 AM','10:00 AM','11:00 AM','12:00 PM',
+    '01:00 PM','02:00 PM','03:00 PM','04:00 PM','05:00 PM'
   ]
+
+  // Automatically ask the first question after welcome
+  useEffect(() => {
+    if (currentStep === 0) {
+      setIsTyping(true)
+      setTimeout(() => {
+        setMessages(prev => [
+          ...prev,
+          { from: 'bot', text: "First, what is your pet's name?" }
+        ])
+        setCurrentStep(1) // Step 1 = pet name input
+        setIsTyping(false)
+      }, 1000)
+    }
+  }, [currentStep])
 
   const handleSubmit = (e) => {
     e.preventDefault()
     if (!inputValue) return
 
+    // Add user message
     setMessages(prev => [...prev, { from: 'user', text: inputValue }])
 
     let nextStep = currentStep + 1
-    if (currentStep === 0) setFormData(prev => ({ ...prev, petName: inputValue }))
-    if (currentStep === 1) setFormData(prev => ({ ...prev, ownerName: inputValue }))
-    if (currentStep === 2) setFormData(prev => ({ ...prev, date: inputValue }))
-    if (currentStep === 3) setFormData(prev => ({ ...prev, time: inputValue }))
+
+    // Save data based on step
+    if (currentStep === 1) setFormData(prev => ({ ...prev, petName: inputValue }))
+    if (currentStep === 2) setFormData(prev => ({ ...prev, ownerName: inputValue }))
+    if (currentStep === 3) setFormData(prev => ({ ...prev, date: inputValue }))
+    if (currentStep === 4) setFormData(prev => ({ ...prev, time: inputValue }))
 
     setInputValue('')
     setIsTyping(true)
 
     setTimeout(() => {
       let botReply = ''
-      if (nextStep === 1) botReply = `Awesome! And what is the owner's name?`
-      else if (nextStep === 2) botReply = `Thanks! Please select the appointment date.`
-      else if (nextStep === 3) botReply = `Great! Now choose a time slot.`
-      else if (nextStep === 4) {
+      if (nextStep === 2) botReply = "Great! And what is the owner's name?"
+      else if (nextStep === 3) botReply = "Thanks! Please select the appointment date."
+      else if (nextStep === 4) botReply = "Perfect! Now choose a time slot."
+      else if (nextStep === 5) {
         botReply = `All done! 🐾 Here’s your appointment summary:\nPet: ${formData.petName}\nOwner: ${formData.ownerName}\nDate: ${formData.date}\nTime: ${formData.time}\nDocDog 🐶 will contact you soon!`
       }
 
@@ -83,7 +100,7 @@ export default function Home() {
 
         {/* Input Area */}
         <div className="p-3 border-t bg-white">
-          {currentStep === 2 ? (
+          {currentStep === 3 ? (
             <form onSubmit={handleSubmit} className="flex gap-2">
               <input
                 type="date"
@@ -96,7 +113,7 @@ export default function Home() {
                 Send
               </button>
             </form>
-          ) : currentStep === 3 ? (
+          ) : currentStep === 4 ? (
             <form onSubmit={handleSubmit} className="flex gap-2">
               <select
                 value={inputValue}
@@ -113,7 +130,7 @@ export default function Home() {
                 Send
               </button>
             </form>
-          ) : currentStep < 2 ? (
+          ) : currentStep >= 1 && currentStep <= 2 ? (
             <form onSubmit={handleSubmit} className="flex gap-2">
               <input
                 type="text"
