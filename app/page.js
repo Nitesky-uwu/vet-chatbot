@@ -6,23 +6,24 @@ export default function Home() {
   const [messages, setMessages] = useState([
     { from: 'bot', text: 'Hello! 🐶 I am DocDog. I will help you book a vet appointment.' }
   ])
-  const [currentStep, setCurrentStep] = useState(0) // 0 = initial welcome
+  const [currentStep, setCurrentStep] = useState(0)
   const [inputValue, setInputValue] = useState('')
   const [formData, setFormData] = useState({
     petType: '',
     petName: '',
     ownerName: '',
+    severity: '',
+    reason: '',
     date: '',
     time: ''
   })
   const [isTyping, setIsTyping] = useState(false)
 
-  const timeOptions = [
-    '09:00 AM','10:00 AM','11:00 AM','12:00 PM',
-    '01:00 PM','02:00 PM','03:00 PM','04:00 PM','05:00 PM'
-  ]
+  const timeOptions = ['09:00 AM','10:00 AM','11:00 AM','12:00 PM','01:00 PM','02:00 PM','03:00 PM','04:00 PM','05:00 PM']
+  const severityOptions = ['Mild', 'Moderate', 'Severe']
+  const reasonOptions = ['Vaccination', 'Check-up', 'Surgery', 'Other']
 
-  // Automatically ask the first question after welcome
+  // Ask first question after welcome
   useEffect(() => {
     if (currentStep === 0) {
       setIsTyping(true)
@@ -31,7 +32,7 @@ export default function Home() {
           ...prev,
           { from: 'bot', text: "First, what type of pet do you have? (Dog, Cat, etc.)" }
         ])
-        setCurrentStep(1) // Step 1 = pet type
+        setCurrentStep(1)
         setIsTyping(false)
       }, 1000)
     }
@@ -42,33 +43,64 @@ export default function Home() {
     if (!inputValue) return
 
     setMessages(prev => [...prev, { from: 'user', text: inputValue }])
-
     let nextStep = currentStep + 1
 
-    // Save data based on step
-    if (currentStep === 1) setFormData(prev => ({ ...prev, petType: inputValue }))
-    if (currentStep === 2) setFormData(prev => ({ ...prev, petName: inputValue }))
-    if (currentStep === 3) setFormData(prev => ({ ...prev, ownerName: inputValue }))
-    if (currentStep === 4) setFormData(prev => ({ ...prev, date: inputValue }))
-    if (currentStep === 5) setFormData(prev => ({ ...prev, time: inputValue }))
+    // Save form data based on step
+    switch (currentStep) {
+      case 1: setFormData(prev => ({ ...prev, petType: inputValue })); break
+      case 2: setFormData(prev => ({ ...prev, petName: inputValue })); break
+      case 3: setFormData(prev => ({ ...prev, ownerName: inputValue })); break
+      case 4: setFormData(prev => ({ ...prev, severity: inputValue })); break
+      case 5: setFormData(prev => ({ ...prev, reason: inputValue })); break
+      case 6: setFormData(prev => ({ ...prev, date: inputValue })); break
+      case 7: setFormData(prev => ({ ...prev, time: inputValue })); break
+      default: break
+    }
 
     setInputValue('')
     setIsTyping(true)
 
     setTimeout(() => {
       let botReply = ''
-      if (nextStep === 2) botReply = "Great! What is your pet's name?"
-      else if (nextStep === 3) botReply = "Thanks! What is the owner's name?"
-      else if (nextStep === 4) botReply = "Please select the appointment date."
-      else if (nextStep === 5) botReply = "Perfect! Now choose a time slot."
-      else if (nextStep === 6) {
-        botReply = `All done! 🐾 Here’s your appointment summary:\n\nPet Type: ${formData.petType}\nPet Name: ${formData.petName}\nOwner: ${formData.ownerName}\nDate: ${formData.date}\nTime: ${formData.time}\n\nDocDog 🐶 will contact you soon!`
+      switch (nextStep) {
+        case 2: botReply = "Great! What is your pet's name?"; break
+        case 3: botReply = "Thanks! What is the owner's name?"; break
+        case 4: botReply = "How severe is the issue?"; break
+        case 5: botReply = "What is the appointment for?"; break
+        case 6: botReply = "Please select the appointment date."; break
+        case 7: botReply = "Perfect! Now choose a time slot."; break
+        case 8: 
+          botReply = `All done! 🐾 Here’s your appointment summary:\n\nPet Type: ${formData.petType}\nPet Name: ${formData.petName}\nOwner: ${formData.ownerName}\nSeverity: ${formData.severity}\nReason: ${formData.reason}\nDate: ${formData.date}\nTime: ${formData.time}\n\nDocDog 🐶 will contact you soon!`
+          break
+        default: break
       }
 
       setMessages(prev => [...prev, { from: 'bot', text: botReply }])
       setCurrentStep(nextStep)
       setIsTyping(false)
     }, 1000)
+  }
+
+  const renderOptions = (options) => {
+    return (
+      <div className="flex flex-wrap gap-2">
+        {options.map(opt => (
+          <button
+            key={opt}
+            onClick={() => setInputValue(opt)}
+            className="bg-yellow-500 text-black px-4 py-2 rounded-full hover:bg-yellow-400 transition"
+          >
+            {opt}
+          </button>
+        ))}
+        <button
+          onClick={handleSubmit}
+          className="bg-yellow-600 text-black px-4 py-2 rounded-full hover:bg-yellow-500 transition"
+        >
+          Send
+        </button>
+      </div>
+    )
   }
 
   return (
@@ -92,7 +124,6 @@ export default function Home() {
                   : 'bg-yellow-500 text-black self-end'
               }`}
             >
-              {/* Preserve line breaks in summary */}
               {msg.text.split('\n').map((line, idx) => (
                 <div key={idx}>{line}</div>
               ))}
@@ -105,7 +136,9 @@ export default function Home() {
 
         {/* Input Area */}
         <div className="p-3 border-t border-gray-700 bg-gray-800">
-          {currentStep === 4 ? (
+          {currentStep === 4 ? renderOptions(severityOptions) :
+           currentStep === 5 ? renderOptions(reasonOptions) :
+           currentStep === 6 ? (
             <form onSubmit={handleSubmit} className="flex gap-2">
               <input
                 type="date"
@@ -118,7 +151,7 @@ export default function Home() {
                 Send
               </button>
             </form>
-          ) : currentStep === 5 ? (
+          ) : currentStep === 7 ? (
             <form onSubmit={handleSubmit} className="flex gap-2">
               <select
                 value={inputValue}
